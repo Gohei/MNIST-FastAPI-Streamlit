@@ -10,7 +10,7 @@ torchvision = "0.16.0"
 fastapi = "0.104.1"
 uvicorn = "0.24.0.post1"
 streamlit = "1.28.2"
-streamlit-oekaki-component = "0.1.2"
+streamlit-mnist-canvas = "0.1.1"
 
 [dev-packages]
 

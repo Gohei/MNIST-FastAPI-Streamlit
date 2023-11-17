@@ -17,18 +17,22 @@ Streamlitアプリケーションとしてこのスクリプトを実行し、
 """
 
 import streamlit as st
-from streamlit_oekaki_component import oekaki
+from streamlit_mnist_canvas import st_mnist_canvas
 
 import requests
 
-result = oekaki()
 
+st.subheader("MNIST Handwritten Digit Recognition")
+
+result = st_mnist_canvas()
+
+prediction = ""
 if result.is_submitted:
     response = requests.post(
-        "http://127.0.0.1:8000/prediction", data=result.image_bytes
+        "http://127.0.0.1:8000/prediction", data=result.raw_image_bytes
     )
 
     response_json = response.json()
-    prediction = response_json.get("prediction", None)
+    prediction = response_json.get("prediction", "")
 
-    st.write(prediction)
+st.subheader(f"Prediction: {prediction}")
