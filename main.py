@@ -32,7 +32,7 @@ transform = transforms.Compose(
     [
         transforms.Resize((28, 28)),  # MNISTの画像サイズに合わせる
         transforms.Grayscale(),  # グレースケールに変換
-        transforms.ToTensor(),  # Tensor形式に変換
+        transforms.ToTensor(),  # テンソル形式に変換
     ]
 )
 
@@ -48,23 +48,34 @@ net.load_state_dict(model_weights)
 
 @app.post("/prediction")
 async def predict_image(request: Request):
-    # リクエストから画像データをバイトとして取得
+    # リクエストから画像データをバイト形式で取得
     image_bytes = await request.body()
+
+    # PIL Imageオブジェクトに変換
     image_stream = io.BytesIO(image_bytes)
     image = Image.open(image_stream)
 
-    # 画像をモデルに適した形に変換
+    # 画像をモデルに適した形に変換（リサイズ、グレースケール変換、テンソル変換）
     transformed_image = transform(image)
 
-    # モデルを使用して予測
+    # 変換された画像をモデルに入力し、生の予測値を取得
     prediction = net(transformed_image.unsqueeze(0))
 
-    # 最も確率が高いクラスを選択
-    prediction = F.softmax(prediction, dim=1)
-    predicted_class = torch.argmax(prediction)
+    # Softmax関数を適用して、生の予測値を確率に変換
+    probabilities = F.softmax(prediction, dim=1)
 
-    # 予測結果を整数として返す
-    return {"prediction": predicted_class.item()}
+    # 最も確率が高いクラスを決定
+    most_probable_class = torch.argmax(probabilities)
+
+    # 各クラスの確率をnumpy配列に変換し、4桁の小数点まで丸めて可読性を高める
+    class_probabilities = probabilities.detach().numpy()[0]
+    class_probabilities = [round(float(prob), 4) for prob in class_probabilities]
+
+    # 最も確率が高いクラスと各クラスの確率を含む辞書をレスポンスとして返す
+    return {
+        "most_probable_class": most_probable_class.item(),
+        "class_probabilities": class_probabilities,
+    }
 
 
 if __name__ == "__main__":
