@@ -16,7 +16,7 @@ main.py
 
 """
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, File
 from PIL import Image
 import io
 import torch
@@ -47,11 +47,8 @@ net.load_state_dict(model_weights)
 
 
 @app.post("/prediction")
-async def predict_image(request: Request):
-    # リクエストから画像データをバイト形式で取得
-    image_bytes = await request.body()
-
-    # PIL Imageオブジェクトに変換
+async def predict_image(image_bytes: bytes = File(...)):
+    # 画像のバイトデータを受け取り、PIL Imageオブジェクトに変換
     image_stream = io.BytesIO(image_bytes)
     image = Image.open(image_stream)
 

@@ -11,6 +11,7 @@ fastapi = "0.104.1"
 uvicorn = "0.24.0.post1"
 streamlit = "1.28.2"
 streamlit-mnist-canvas = "0.1.1"
+python-multipart = "0.0.6"
 
 [dev-packages]
 
