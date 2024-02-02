@@ -33,14 +33,23 @@ prediction = ""
 class_probabilities = [0.0] * 10
 
 if handwritten_image.is_submitted:
+    # 画像データをFastAPIサーバーに送信するための準備
+    # `image_file` 部分は、FastAPIサーバーで定義したパラメータ名と一致させる
+    files = {
+        "image_file": (
+            "handwritten_image.png",  # 任意のファイル名
+            handwritten_image.raw_image_bytes,  # 画像のバイトデータ
+            "image/png",  # ファイル形式
+        )
+    }
     # FastAPIサーバーに画像を送信し、予測結果を取得
     response = requests.post(
         "http://127.0.0.1:8000/prediction",
-        files={"image_bytes": handwritten_image.raw_image_bytes},
+        files=files,
     )
     response_json = response.json()
 
-    # 予測されたクラスと確率を安全に取得
+    # 予測されたクラスと確率を取得
     prediction = response_json.get("most_probable_class", "Unknown")
     class_probabilities = response_json.get("class_probabilities", [0.0] * 10)
 
